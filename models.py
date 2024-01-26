@@ -29,8 +29,6 @@ class User(db.Model):
     last_name = db.Column(db.String(30),
                        nullable=False)
 
-    feedback = db.relationship('Feedback')
-
     def __repr__(self):
         u = self
         return f"<User username={u.username} first_name={u.first_name} last_name={u.last_name}>"
@@ -81,9 +79,11 @@ class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(100), nullable=False)
     text = db.Column(db.String, nullable=False)
-    username = db.Column(db.String(20), db.ForeignKey('users.username'))
+    for_username = db.Column(db.String(20), db.ForeignKey('users.username'))
+    by_username = db.Column(db.String(20), db.ForeignKey('users.username'))
 
-    user = db.relationship('User')
+    for_user = db.relationship('User', foreign_keys=[for_username], backref='feedback_for_user')
+    author = db.relationship('User', foreign_keys=[by_username], backref='feedback_by_user')
 
     def __repr__(self):
         s = self
