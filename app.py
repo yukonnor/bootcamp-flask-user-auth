@@ -4,8 +4,8 @@
 """
 
 from flask import Flask, request, render_template,  redirect, flash, session
-from models import db, connect_db, User
-from forms import RegisterUserForm, LoginUserForm
+from models import db, connect_db, User, Feedback
+from forms import RegisterUserForm, LoginUserForm, FeedbackForm
 
 def create_app(db_name, testing=False, developing=False):
 
@@ -38,6 +38,40 @@ def create_app(db_name, testing=False, developing=False):
         user = User.get_user(username)
         
         return render_template('user-details.html', user=user)
+    
+    @app.route('/users/<username>/feedback/add', methods=["GET", "POST"])
+    def add_feedback(username):
+        """Display a 'leave feedback for user' form and process form submitssion."""
+
+        # Authorize whether requester can view page:
+        if "username" not in session:
+            flash("Please login first!", "danger")
+            return redirect('/login')
+        
+        # instatiate an WTForm object
+        form = FeedbackForm()
+
+        if form.validate_on_submit():
+            
+            title = form.title.data
+            text = form.text.data
+
+            by_username = session.get('username')
+
+            feedback = Feedback(title=title, text=text, for_username=username, by_username=by_username)
+            db.session.add(feedback)
+            
+            try:
+                db.session.commit()
+                flash(f"Feedback added for {username}!", "success")
+            except:
+                flash(f"Somethign went wrong :/  Please check logs.", "danger")
+                return render_template('add-feedback.html', for_username=username, form=form)
+            
+            return redirect(f'/users/{username}')
+
+        else:
+            return render_template('add-feedback.html', for_username=username, form=form)
     
     @app.route('/register', methods=["GET", "POST"])
     def register():
@@ -101,7 +135,6 @@ def create_app(db_name, testing=False, developing=False):
 
         flash("See you next time!", "info")
         return redirect('/')
-
     
     return app
 

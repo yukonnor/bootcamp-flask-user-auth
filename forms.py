@@ -40,3 +40,12 @@ class LoginUserForm(FlaskForm):
                         validators=[InputRequired(message="Please provide a password."),
                                     Length(min=8, message="Password needs to be at least 8 characters long.")])
     
+class FeedbackForm(FlaskForm):
+    """Form for to add / edit feedback for a user."""
+    
+    title = StringField("Feedback Title",
+                       validators=[InputRequired(message="Please provide a title for your feedback."),
+                                   Length(max=100, message="Titles can't be longer than 100 characters.")])
+    
+    text = StringField("Feedback Text",
+                        validators=[InputRequired(message="Please provide a feedback text.")])
