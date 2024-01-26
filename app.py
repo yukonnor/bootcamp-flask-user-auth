@@ -26,7 +26,7 @@ def create_app(db_name, testing=False, developing=False):
         return redirect('/register')
     
     @app.route('/secret')
-    def root():
+    def secret():
         """A secret page that only logged in users should be able to access."""
         
         return render_template('/secret')
@@ -63,7 +63,7 @@ def create_app(db_name, testing=False, developing=False):
             return render_template('register.html', form=form)
         
     @app.route('/login', methods=["GET", "POST"])
-    def register():
+    def login():
         """Display user log in form and process form submission."""
 
         # instatiate an WTForm object
