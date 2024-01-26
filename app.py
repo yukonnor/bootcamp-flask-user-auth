@@ -29,7 +29,7 @@ def create_app(db_name, testing=False, developing=False):
     def secret():
         """A secret page that only logged in users should be able to access."""
         
-        return render_template('/secret')
+        return render_template('secret.html')
     
     @app.route('/register', methods=["GET", "POST"])
     def register():
