@@ -25,6 +25,12 @@ def create_app(db_name, testing=False, developing=False):
         
         return redirect('/register')
     
+    @app.route('/secret')
+    def root():
+        """A secret page that only logged in users should be able to access."""
+        
+        return render_template('/secret')
+    
     @app.route('/register', methods=["GET", "POST"])
     def register():
         """Display user registration form and process form submission."""
@@ -49,12 +55,35 @@ def create_app(db_name, testing=False, developing=False):
                 form.username.errors.append('Username taken.  Please pick another')
                 return render_template('register.html', form=form)
             
-            session['user_id'] = new_user.id
+            session['username'] = new_user.username
             
             flash('Welcome! Successfully Created Your Account!', "success")
             return redirect('/secret')
         else:
             return render_template('register.html', form=form)
+        
+    @app.route('/login', methods=["GET", "POST"])
+    def register():
+        """Display user log in form and process form submission."""
+
+        # instatiate an WTForm object
+        form = LoginUserForm()
+
+        if form.validate_on_submit():
+            
+            username = form.username.data
+            password = form.password.data
+
+            user = User.authenticate(username, password)
+            
+            if user:
+                flash(f"Welcome Back, {user.username}!", "success")
+                session['username'] = user.username
+                return redirect('/secret')
+            else:
+                form.username.errors = ['Invalid username/password.']
+        else:
+            return render_template('login.html', form=form)
     
     return app
 
