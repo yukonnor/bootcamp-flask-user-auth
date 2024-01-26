@@ -36,8 +36,9 @@ def create_app(db_name, testing=False, developing=False):
         
         # Get user
         user = User.get_user(username)
+        user_feedback = user.feedback_for_user
         
-        return render_template('user-details.html', user=user)
+        return render_template('user-details.html', user=user, feedback=user_feedback)
     
     @app.route('/users/<username>/feedback/add', methods=["GET", "POST"])
     def add_feedback(username):
