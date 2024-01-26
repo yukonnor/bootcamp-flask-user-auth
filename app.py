@@ -36,9 +36,33 @@ def create_app(db_name, testing=False, developing=False):
         
         # Get user
         user = User.get_user(username)
-        user_feedback = user.feedback_for_user
+        user_feedback = user.feedback_received
         
         return render_template('user-details.html', user=user, feedback=user_feedback)
+    
+    @app.route('/users/<username>/delete', methods=["POST"])
+    def delete_user(username):
+        """Process the deletion of the user. This will delete all of the feedback they have left and received."""
+
+        # Authorize user
+        if "username" not in session:
+            flash("Please login first!", "danger")
+            return redirect('/login')
+        
+        # Try to delete user
+        deleted = User.delete_user(username)
+
+        if deleted:
+            # remove user from session
+            session.pop('username')
+
+            flash("Your account has been deleted.", "success")
+            return redirect('/')
+        else:
+            flash("Something went wrong :/", "danger")
+            return redirect('/users/<username>')
+            
+        
     
     @app.route('/users/<username>/feedback/add', methods=["GET", "POST"])
     def add_feedback(username):

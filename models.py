@@ -28,6 +28,9 @@ class User(db.Model):
 
     last_name = db.Column(db.String(30),
                        nullable=False)
+    
+    feedback_left = db.relationship('Feedback', foreign_keys='Feedback.by_username', cascade='all, delete-orphan')
+    feedback_received = db.relationship('Feedback', foreign_keys='Feedback.for_username', cascade='all, delete-orphan')
 
     def __repr__(self):
         u = self
@@ -72,6 +75,25 @@ class User(db.Model):
             return user
         else:
             return False
+        
+    @classmethod
+    def delete_user(cls, username):
+        """Attempt to delete the user.
+        """
+
+        user_to_delete = User.query.filter_by(username=username).first()
+
+        if user_to_delete: 
+            try:
+                db.session.delete(user_to_delete)
+                db.session.commit()
+                return True
+            except:
+                db.session.rollback()
+                return False
+        else:
+            print("Couldn't find user to delete.")
+            return False
 
 class Feedback(db.Model):
     __tablename__ = 'feedback'
@@ -79,11 +101,11 @@ class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(100), nullable=False)
     text = db.Column(db.String, nullable=False)
-    for_username = db.Column(db.String(20), db.ForeignKey('users.username'))
-    by_username = db.Column(db.String(20), db.ForeignKey('users.username'))
+    for_username = db.Column(db.String(20), db.ForeignKey('users.username', ondelete='CASCADE'))
+    by_username = db.Column(db.String(20), db.ForeignKey('users.username', ondelete='CASCADE'))
 
-    for_user = db.relationship('User', foreign_keys=[for_username], backref='feedback_for_user')
-    author = db.relationship('User', foreign_keys=[by_username], backref='feedback_by_user')
+    for_user = db.relationship('User', foreign_keys=[for_username])
+    author = db.relationship('User', foreign_keys=[by_username])
 
     def __repr__(self):
         s = self
