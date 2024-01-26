@@ -28,6 +28,11 @@ def create_app(db_name, testing=False, developing=False):
     @app.route('/secret')
     def secret():
         """A secret page that only logged in users should be able to access."""
+
+        # Authorize whether requester can view page:
+        if "username" not in session:
+            flash("Please login first!", "danger")
+            return redirect('/login')
         
         return render_template('secret.html')
     
