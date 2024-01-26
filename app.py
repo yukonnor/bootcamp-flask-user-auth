@@ -25,16 +25,19 @@ def create_app(db_name, testing=False, developing=False):
         
         return redirect('/register')
     
-    @app.route('/secret')
-    def secret():
-        """A secret page that only logged in users should be able to access."""
+    @app.route('/users/<username>')
+    def user_details(username):
+        """A user details page that only logged in users should be able to access."""
 
         # Authorize whether requester can view page:
         if "username" not in session:
             flash("Please login first!", "danger")
             return redirect('/login')
         
-        return render_template('secret.html')
+        # Get user
+        user = User.get_user(username)
+        
+        return render_template('user-details.html', user=user)
     
     @app.route('/register', methods=["GET", "POST"])
     def register():
@@ -63,7 +66,7 @@ def create_app(db_name, testing=False, developing=False):
             session['username'] = new_user.username
             
             flash('Welcome! Successfully Created Your Account!', "success")
-            return redirect('/secret')
+            return redirect(f'/users/{username}')
         else:
             return render_template('register.html', form=form)
         
@@ -84,7 +87,7 @@ def create_app(db_name, testing=False, developing=False):
             if user:
                 flash(f"Welcome Back, {user.username}!", "success")
                 session['username'] = user.username
-                return redirect('/secret')
+                return redirect(f'/users/{username}')
             else:
                 form.username.errors = ['Invalid username/password.']
         else:

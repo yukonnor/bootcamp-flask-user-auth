@@ -34,21 +34,24 @@
                 </ul>
             </div>
         </nav>
-        <div>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% if category == 'message' %}
-                    <div class="alert alert-warning" role="alert">
-                    {% else %}
-                    <div class="alert alert-{{ category }}" role="alert">
-                    {% endif %}
-                    {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <div class="container">
+            <div class="mt-2">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'message' %}
+                        <div class="alert alert-warning" role="alert">
+                        {% else %}
+                        <div class="alert alert-{{ category }}" role="alert">
+                        {% endif %}
+                        {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            </div>
         </div>
+        
         <main>
             {% block content %}Specific Page Content{% endblock %}
         </main>
