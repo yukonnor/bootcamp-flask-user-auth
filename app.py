@@ -60,9 +60,7 @@ def create_app(db_name, testing=False, developing=False):
             return redirect('/')
         else:
             flash("Something went wrong :/", "danger")
-            return redirect('/users/<username>')
-            
-        
+            return redirect(f'/users/{username}')
     
     @app.route('/users/<username>/feedback/add', methods=["GET", "POST"])
     def add_feedback(username):
@@ -130,6 +128,35 @@ def create_app(db_name, testing=False, developing=False):
         else:
             return render_template('edit-feedback.html', form=form, username=username)
     
+    @app.route('/feedback/<feedback_id>/delete', methods=["POST"])
+    def delete_feedback(feedback_id):
+        """Process the deletion of a piece of feedback."""
+
+        # Authorize user to view page
+        if "username" not in session:
+            flash("Please login first!", "danger")
+            return redirect('/login')
+        
+        feedback_to_delete = Feedback.query.get_or_404(feedback_id)
+        for_user = feedback_to_delete.for_user
+        author = feedback_to_delete.author
+        
+        # Authorize user to delete feedback
+        if session["username"] != author.username:
+            flash("You cannot edit feedback that you didn't author.", "danger")
+            return redirect(f'/users/{for_user}')
+        
+        # Try to delete feedback
+        try:
+            db.session.delete(feedback_to_delete)
+            db.session.commit()
+            flash("Feedback has been deleted.", "success")
+            return redirect(f'/users/{for_user.username}')
+        except:
+            db.session.rollback()
+            flash("Something went wrong :/", "danger")
+            return redirect(f'/users/{for_user.username}')            
+   
     @app.route('/register', methods=["GET", "POST"])
     def register():
         """Display user registration form and process form submission."""
