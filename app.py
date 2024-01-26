@@ -89,6 +89,16 @@ def create_app(db_name, testing=False, developing=False):
                 form.username.errors = ['Invalid username/password.']
         else:
             return render_template('login.html', form=form)
+        
+    @app.route('/logout', methods=["POST"])
+    def logout():
+        """Log out the user. Redirects to /."""
+
+        session.pop('username')
+
+        flash("See you next time!", "info")
+        return redirect('/')
+
     
     return app
 
