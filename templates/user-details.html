@@ -22,7 +22,7 @@
                 <p class="card-text">{{feedback_record.text}}</p>
                 {% if session['username'] == feedback_record.by_username %}
                     <h6>
-                        <a class="btn btn-sm btn-secondary" href="/feedback/{{feedback_record.id}}/update" role="button">Edit</a>
+                        <a class="btn btn-sm btn-secondary" href="/feedback/{{feedback_record.id}}/edit" role="button">Edit</a>
                         <form style="display:inline;" action="/feedback/{{feedback_record.id}}/delete" method="POST">
                         <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                         </form>

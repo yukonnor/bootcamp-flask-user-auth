@@ -97,10 +97,47 @@ def create_app(db_name, testing=False, developing=False):
 
         else:
             return render_template('add-feedback.html', for_username=username, form=form)
+        
+    @app.route('/feedback/<feedback_id>/edit', methods=["GET", "POST"])
+    def edit_feedback(feedback_id):
+        """Display the 'edit feedback' form and process form submision."""
+
+        # Authorize whether requester can view page:
+        if "username" not in session:
+            flash("Please login first!", "danger")
+            return redirect('/login')
+        
+        feedback_to_edit = Feedback.query.get_or_404(feedback_id)
+        username = feedback_to_edit.for_username
+        
+        # instatiate an WTForm object
+        form = FeedbackForm(obj=feedback_to_edit)
+
+        if form.validate_on_submit():
+            
+            feedback_to_edit.title = form.title.data
+            feedback_to_edit.text = form.text.data
+
+            try:
+                db.session.commit()
+                flash(f"Feedback edited!", "success")
+            except:
+                flash(f"Somethign went wrong :/  Please check logs.", "danger")
+                return render_template('edit-feedback.html',form=form, username=username)
+            
+            return redirect(f'/users/{username}')
+
+        else:
+            return render_template('edit-feedback.html', form=form, username=username)
     
     @app.route('/register', methods=["GET", "POST"])
     def register():
         """Display user registration form and process form submission."""
+
+        # If user logged in, redirect
+        if "username" in session:
+            flash("You're already logged in :)", "info")
+            return redirect(f'/users/{session["username"]}')
 
         # instatiate an WTForm object
         form = RegisterUserForm()
@@ -133,6 +170,11 @@ def create_app(db_name, testing=False, developing=False):
     def login():
         """Display user log in form and process form submission."""
 
+        # If user logged in, redirect
+        if "username" in session:
+            flash("You're already logged in :)", "info")
+            return redirect(f'/users/{session["username"]}')
+
         # instatiate an WTForm object
         form = LoginUserForm()
 
@@ -149,6 +191,7 @@ def create_app(db_name, testing=False, developing=False):
                 return redirect(f'/users/{username}')
             else:
                 form.username.errors = ['Invalid username/password.']
+                return render_template('login.html', form=form)
         else:
             return render_template('login.html', form=form)
         
